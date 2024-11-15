@@ -14,7 +14,7 @@ import (
 	"strings"
 	"unicode"
 
-	configparser "github.com/Izumra/RefInator/utils/config_parser"
+  configparser "github.com/Izumra/RefInatore/utils/config_parser"
 	"github.com/brianvoe/gofakeit/v7"
 )
 

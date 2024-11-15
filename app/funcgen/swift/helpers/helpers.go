@@ -1,0 +1,237 @@
+package helpers
+
+import (
+	"fmt"
+
+	"math/rand"
+	"strings"
+	"unicode"
+
+	"github.com/brianvoe/gofakeit/v7"
+)
+
+type Action func() string
+
+// Returns answer on the yes or no question
+func YesOrNo() bool {
+	return rand.Intn(2) == 0
+}
+
+func CapitalizeFirstLetter(s string) string {
+	if len(s) == 0 {
+		return s
+	}
+
+	runes := []rune(s)
+	for i := range runes {
+		if i == 0 || !unicode.IsLetter(runes[i-1]) {
+			runes[i] = unicode.ToUpper(runes[i])
+		}
+	}
+	return string(runes)
+}
+
+func GenRandomPeremTitle() string {
+	return strings.ReplaceAll(fmt.Sprintf(
+		"%s%s",
+		gofakeit.Word(),
+		CapitalizeFirstLetter(gofakeit.Word()),
+	), " ", "")
+}
+
+// Returns "level" for inserting
+func CountTabsInString(str string, indEnd int) int {
+	countTabs := 0
+
+	if indEnd < 0 {
+		return -1
+	}
+
+	for i := indEnd; i > 0; i-- {
+		if str[i] == '\n' {
+			return countTabs
+		} else if str[i] == '\t' {
+			countTabs++
+		}
+	}
+
+	return countTabs
+}
+
+func PatternForIfElseConditions(maxConditions int) (string, int) {
+	var pattern string
+	countConditions := rand.Intn(maxConditions)
+
+	if countConditions == 0 {
+		countConditions = 1
+	}
+
+	pattern = "if (%v) {\n"
+	for i := 0; i < countConditions-1; i++ {
+		pattern += "\tINSERT\n}\nelse if (%v) {\n"
+	}
+
+	pattern += "\tINSERT\n}"
+
+	if YesOrNo() {
+		pattern += "\nelse{\n\tINSERT\n}"
+	}
+
+	return pattern, countConditions
+}
+
+func SelectConditionSign() string {
+	selection := rand.Intn(5)
+	switch selection {
+	case 0:
+		return "=="
+	case 1:
+		return "!="
+	case 2:
+		return ">"
+	case 3:
+		return "<"
+	case 4:
+		return ">="
+	case 5:
+		return "<="
+	default:
+		return "=="
+	}
+}
+
+func SelectUnionSign() string {
+	if YesOrNo() {
+		return "&&"
+	}
+
+	return "||"
+}
+
+func MakeCondition(attrs []string) string {
+	countComparisons := rand.Intn(4)
+	if countComparisons == 0 {
+		countComparisons = 1
+	}
+
+	condition := ""
+	for i := 0; i < countComparisons-1; i++ {
+		condition += fmt.Sprintf("(%v %v %v) %v ",
+			attrs[rand.Intn(len(attrs))],
+			SelectConditionSign(),
+			attrs[rand.Intn(len(attrs))],
+			SelectUnionSign(),
+		)
+	}
+
+	condition += fmt.Sprintf(
+		"(%v %v %v)",
+		attrs[rand.Intn(len(attrs))],
+		SelectConditionSign(),
+		attrs[rand.Intn(len(attrs))],
+	)
+
+	return condition
+}
+
+func PatternForSwitchConditions(
+	mainCondition string,
+	maxConditions int,
+) (string, int) {
+	var pattern string
+	countConditions := rand.Intn(maxConditions)
+
+	if countConditions == 0 {
+		countConditions = 1
+	}
+
+	pattern = fmt.Sprintf("switch %v {\n", mainCondition)
+	for i := 0; i < countConditions-1; i++ {
+		pattern += "case %v:\n\tINSERT\n"
+	}
+
+	countConditions--
+	pattern += "default:\n\tINSERT\n}"
+
+	return pattern, countConditions
+}
+
+func GenRandomAriphmeticStr(
+	attrs []string,
+) string {
+	var ariphmeticStr string
+
+	for i := 0; i < len(attrs)-1; i++ {
+		ariphmeticStr += fmt.Sprintf("%v %v ", attrs[i], randMathSign())
+	}
+
+	ariphmeticStr += attrs[len(attrs)-1]
+
+	if YesOrNo() {
+		ariphmeticStr += ";"
+	}
+
+	return ariphmeticStr
+}
+
+func randMathSign() string {
+	sign := rand.Intn(4)
+
+	switch sign {
+	case 0:
+		return "-"
+	case 1:
+		return "+"
+	case 2:
+		return "*"
+	case 3:
+		return "/"
+	case 4:
+		return "%"
+	}
+
+	return "+"
+}
+
+func GenRandomBitwiseStr(
+	attrs []string,
+) string {
+	var ariphmeticStr string
+
+	for i := 0; i < len(attrs)-1; i++ {
+		ariphmeticStr += fmt.Sprintf("%v %v ", attrs[i], randBitwiseSign())
+	}
+
+	ariphmeticStr += attrs[len(attrs)-1]
+
+	if YesOrNo() {
+		ariphmeticStr += ";"
+	}
+
+	return ariphmeticStr
+}
+
+func randBitwiseSign() string {
+	sign := rand.Intn(5)
+
+	switch sign {
+	case 0:
+		return "<<"
+	case 1:
+		return "&"
+	case 2:
+		return "~"
+	case 3:
+		return "^"
+	case 4:
+		return "|"
+	default:
+		return ">>"
+	}
+}
+
+func RandomLatinLetter() string {
+	letters := []string{"q", "w", "e", "r", "t", "y", "u", "i", "o", "p", "a", "s", "d", "f", "g", "h", "j", "k", "l", "z", "x", "c", "v", "b", "n", "m"}
+
+	return letters[rand.Intn(len(letters))]
+}

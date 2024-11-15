@@ -1,4 +1,4 @@
-module github.com/Izumra/RefInator
+module github.com/Izumra/RefInatore
 
 go 1.22.5
 

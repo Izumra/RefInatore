@@ -10,6 +10,8 @@ type Config struct {
 	Exclusions Exclusions `yaml:"exclusions"`
 	Changes    Changes    `yaml:"changes"`
 	FolderPath string     `yaml:"folder_path"`
+  CountFunctions int `yaml:"count_functions"`
+  MaxActionsPerFunc int `yaml:"max_count_actions_per_func"`
 	Insertions []string   `yaml:"insertions"`
 }
 

@@ -1,0 +1,16 @@
+package typescycles
+
+const (
+	CycleForIn = iota
+	CycleForInWithWhere
+	CycleWhile
+	CycleRepeatWhile
+	CycleForInWithBreakCondition
+	CycleForInWithContinueCondition
+	CycleForInWithWhereAndBreakCondition
+	CycleForInWithWhereAndContinueCondition
+	CycleWhileWithBreakCondition
+	CycleWhileWithContinueCondition
+	CycleRepeatWhileWithBreakCondition
+	CycleRepeatWhileWithContinueCondition
+)
