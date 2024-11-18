@@ -1,3 +1,5 @@
+count_functions: 15
+max_count_actions_per_func: 30
 folder_path: uploads/mark/BotConstructor
 exclusions:
   extensions:

@@ -2,15 +2,19 @@ package helpers
 
 import (
 	"fmt"
-
 	"math/rand"
-	"strings"
+	"regexp"
 	"unicode"
 
 	"github.com/brianvoe/gofakeit/v7"
 )
 
-type Action func() string
+var TitlePattern = regexp.MustCompile(`[^a-zA-Z0-9]`)
+
+type (
+	Action func() string
+	Helper func()
+)
 
 // Returns answer on the yes or no question
 func YesOrNo() bool {
@@ -32,11 +36,11 @@ func CapitalizeFirstLetter(s string) string {
 }
 
 func GenRandomPeremTitle() string {
-	return strings.ReplaceAll(fmt.Sprintf(
+	return TitlePattern.ReplaceAllString(fmt.Sprintf(
 		"%s%s",
 		gofakeit.Word(),
 		CapitalizeFirstLetter(gofakeit.Word()),
-	), " ", "")
+	), "")
 }
 
 // Returns "level" for inserting
@@ -167,10 +171,6 @@ func GenRandomAriphmeticStr(
 
 	ariphmeticStr += attrs[len(attrs)-1]
 
-	if YesOrNo() {
-		ariphmeticStr += ";"
-	}
-
 	return ariphmeticStr
 }
 
@@ -198,14 +198,26 @@ func GenRandomBitwiseStr(
 ) string {
 	var ariphmeticStr string
 
+	isBeforeShift := false
 	for i := 0; i < len(attrs)-1; i++ {
-		ariphmeticStr += fmt.Sprintf("%v %v ", attrs[i], randBitwiseSign())
+		sign := randBitwiseSign()
+		if sign == ">>" || sign == "<<" {
+			if isBeforeShift {
+				ariphmeticStr += fmt.Sprintf("%v) %v ", attrs[i], sign)
+			} else {
+				ariphmeticStr += fmt.Sprintf("(%v %v ", attrs[i], sign)
+			}
+
+			isBeforeShift = !isBeforeShift
+
+		} else {
+			ariphmeticStr += fmt.Sprintf("%v %v ", attrs[i], sign)
+		}
 	}
 
 	ariphmeticStr += attrs[len(attrs)-1]
-
-	if YesOrNo() {
-		ariphmeticStr += ";"
+	if isBeforeShift {
+		ariphmeticStr += ")"
 	}
 
 	return ariphmeticStr
@@ -220,10 +232,8 @@ func randBitwiseSign() string {
 	case 1:
 		return "&"
 	case 2:
-		return "~"
-	case 3:
 		return "^"
-	case 4:
+	case 3:
 		return "|"
 	default:
 		return ">>"
@@ -231,7 +241,34 @@ func randBitwiseSign() string {
 }
 
 func RandomLatinLetter() string {
-	letters := []string{"q", "w", "e", "r", "t", "y", "u", "i", "o", "p", "a", "s", "d", "f", "g", "h", "j", "k", "l", "z", "x", "c", "v", "b", "n", "m"}
+	letters := []string{
+		"q",
+		"w",
+		"e",
+		"r",
+		"t",
+		"y",
+		"u",
+		"i",
+		"o",
+		"p",
+		"a",
+		"s",
+		"d",
+		"f",
+		"g",
+		"h",
+		"j",
+		"k",
+		"l",
+		"z",
+		"x",
+		"c",
+		"v",
+		"b",
+		"n",
+		"m",
+	}
 
 	return letters[rand.Intn(len(letters))]
 }

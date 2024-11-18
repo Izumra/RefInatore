@@ -5,23 +5,23 @@ import (
 	"math/rand"
 	"strings"
 
+	"github.com/brianvoe/gofakeit/v7"
+
 	"github.com/Izumra/RefInatore/app/funcgen/swift/helpers"
 	"github.com/Izumra/RefInatore/app/funcgen/swift/models"
 	"github.com/Izumra/RefInatore/app/funcgen/swift/valueobjects/typesfunction"
-	"github.com/brianvoe/gofakeit/v7"
 )
 
 // Returns generated pattern and ID of the position for further insertions
 func (f *Function) chooseTypeFunction() string {
-	typeFunction := rand.Intn(6)
+	typeFunction := rand.Intn(5)
 	var funcPattern string
-
-	titleFunc := strings.ReplaceAll(fmt.Sprintf(
+	titleFunc := helpers.TitlePattern.ReplaceAllString(fmt.Sprintf(
 		"%s%s%s",
 		gofakeit.City(),
 		helpers.CapitalizeFirstLetter(gofakeit.Animal()),
 		helpers.CapitalizeFirstLetter(gofakeit.VerbAction()),
-	), " ", "")
+	), "")
 
 	switch typeFunction {
 	case typesfunction.FuncWithOutputParams:
@@ -64,28 +64,26 @@ func (f *Function) chooseTypeFunction() string {
 			f.randomInputParams(withDefault, true),
 			randomEmptyOutputParam(),
 		)
-
-	//TODO доделать рекурсивный вызов функций
-	case typesfunction.FuncRecursive:
-		outputs, returnedParams := randomOutputParams()
-    _ = formatReturnsParams(returnedParams)
-
-		funcPattern = fmt.Sprintf("func %s (%s) -> %s {\n\tINSERT\n\treturn %s(%s)\n}",
-			titleFunc,
-			f.randomInputParams(false, false),
-			outputs,
-			titleFunc,
-			"TODO: 'Вставить новые параметры того же типа что и входные'",
-		)
 	}
 
-	//log.Println(typeFunction)
+	// TODO доделать рекурсивный вызов функций
+	//case typesfunction.FuncRecursive:
+	//	outputs, returnedParams := randomOutputParams()
+	//	_ = formatReturnsParams(returnedParams)
+	//
+	//	funcPattern = fmt.Sprintf("func %s (%s) -> %s {\n\tINSERT\n\treturn %s(%s)\n}",
+	//		titleFunc,
+	//		f.randomInputParams(false, false),
+	//		outputs,
+	//		titleFunc,
+	//		"TODO: 'Вставить новые параметры того же типа что и входные'",
+	//	)
+	//}
 
 	return funcPattern
 }
 
 func formatReturnsParams(returnedParams []*models.Perem) string {
-
 	preparedReturnedParams := make([]string, len(returnedParams))
 	for ind, param := range returnedParams {
 		if param.Value == "" {
@@ -93,7 +91,7 @@ func formatReturnsParams(returnedParams []*models.Perem) string {
 			continue
 		}
 
-		//TODO: random math expression to generate returned param
+		// TODO: random math expression to generate returned param
 		preparedReturnedParams[ind] = param.Value
 	}
 
@@ -106,7 +104,7 @@ func formatReturnsParams(returnedParams []*models.Perem) string {
 	return formattedReturns
 }
 
-func (f *Function)randomInputParams(withDefault, withLoweredSep bool) string {
+func (f *Function) randomInputParams(withDefault, withLoweredSep bool) string {
 	countInputParams := rand.Intn(3)
 	countInputParams++
 
@@ -159,13 +157,8 @@ func randomOutputParams() (string, []*models.Perem) {
 // Generates random output param and return it's struct for further manipulating(return value from the func)
 func genRandomOutputParam(specifedTitle bool) (string, *models.Perem) {
 	perem := models.NewPerem()
-	optionValueRand := rand.Intn(2)
 
 	outputParam := perem.Type
-	if optionValueRand == 1 {
-		outputParam += "?"
-		perem.Value = ""
-	}
 
 	if specifedTitle {
 		outputParam = perem.Title + ": " + outputParam
@@ -182,9 +175,9 @@ func (f *Function) genRandomInputParam(withLowered, withDefault bool) string {
 
 	perem := models.NewPerem()
 
-  f.locker.Lock()
-  f.Stack = append(f.Stack, perem)
-  f.locker.Unlock()
+	// f.locker.Lock()
+	// f.Stack = append(f.Stack, perem)
+	// f.locker.Unlock()
 
 	randomParam := fmt.Sprintf("%s%s: %s",
 		prefix,
@@ -195,7 +188,7 @@ func (f *Function) genRandomInputParam(withLowered, withDefault bool) string {
 		randomParam = fmt.Sprintf("%s%s: %s = %v",
 			prefix,
 			perem.Title,
-      perem.Type,
+			perem.Type,
 			perem.Value,
 		)
 	}
@@ -217,4 +210,3 @@ func randomEmptyOutputParam() string {
 
 	return typeOutput
 }
-

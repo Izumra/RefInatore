@@ -4,13 +4,18 @@ import (
 	"fmt"
 	"math/rand/v2"
 	mathrand "math/rand/v2"
+	"strings"
+	"sync"
 
 	"github.com/Izumra/RefInatore/app/funcgen/swift/helpers"
 )
 
 type Perem struct {
-	Title, TypeP, Value string
-	Actions             []helpers.Action
+	Title, Type, Value string
+	Actions            []helpers.Action
+	Helpers            []helpers.Helper
+	isClosure          bool
+	isNilChecker       sync.Once
 }
 
 func randomValue() (string, int8) {
@@ -27,23 +32,130 @@ func randomValue() (string, int8) {
 func New() *Perem {
 	p := &Perem{
 		Title: helpers.GenRandomPeremTitle(),
-		TypeP: "Int8",
+		Type:  "Int8",
 	}
 
 	p.Value, _ = randomValue()
+	if helpers.YesOrNo() {
+		p.Type += "?"
+	}
 
 	p.Actions = []helpers.Action{
-		p.ariphmetic,
-		p.assignment,
-		p.condition,
-		p.bitwise,
-		p.cycle,
+		func() string { return p.ariphmetic() },
+		func() string { return p.assignment() },
+		func() string { return p.condition() },
+		func() string { return p.bitwise() },
+		func() string { return p.cycle() },
+	}
+	p.Helpers = []helpers.Helper{
+		p.unOptionType,
 	}
 
 	return p
 }
 
+func (p *Perem) unOptionType() {
+	p.Type = strings.ReplaceAll(p.Type, "?", "")
+}
+
+func (p *Perem) assertion(assertStr string) string {
+	var str string
+	if p.isClosure {
+		title := p.Title[:len(p.Title)-2]
+		latinLet := helpers.RandomLatinLetter()
+
+		if helpers.YesOrNo() {
+			typeP := strings.ReplaceAll(p.Type, "() ->", "")
+			firstV, firstN := randomValue()
+			secondV, secondN := randomValue()
+			if secondN < firstN {
+				temp := secondV
+				secondV = firstV
+				firstV = temp
+			}
+
+			str = fmt.Sprintf(
+				"%v = {\n\treturn %v.random(in: %v...%v\n}",
+				title,
+				typeP,
+				firstV,
+				secondV,
+			)
+		} else {
+			str = fmt.Sprintf("%v = {\n\t%v = %v\n\treturn %v\n}", title, latinLet, assertStr, latinLet)
+		}
+	} else {
+		str = p.Title + " = " + assertStr
+	}
+
+	return str
+}
+
+func (p *Perem) genRandomAttr() string {
+	newValue, _ := randomValue()
+	typeP := strings.ReplaceAll(p.Type, "?", "")
+
+	if helpers.YesOrNo() {
+
+		newValue = "(" + newValue + ")"
+		return typeP + newValue
+
+	} else {
+
+		attr := p.Title
+
+		if strings.HasSuffix(p.Type, "?") {
+			switch mathrand.IntN(2) {
+			case 0:
+				attr = p.Title + "!"
+			case 1:
+				attr = fmt.Sprintf("(%v ?? %v(%v))", p.Title, typeP, newValue)
+			}
+		}
+
+		return attr
+	}
+}
+
+func (p *Perem) checkIsClosure() {
+	if strings.HasPrefix(p.Type, " () ->") {
+		p.Title += "()"
+		p.isClosure = true
+	}
+}
+
+func (p *Perem) checkNil(def string) string {
+	var str string
+
+	p.isNilChecker.Do(func() {
+		if strings.Contains(p.Type, "?") {
+			str += fmt.Sprintf("if (%v != nil) {\n\t", p.Title)
+
+			countTabs := 1
+			unTabbedStr := strings.Split(def, "\n")
+
+			for i := 1; i < len(unTabbedStr); i++ {
+				unTabbedStr[i] = strings.Repeat("\t", countTabs) + unTabbedStr[i]
+			}
+
+			insertedStr := strings.Join(unTabbedStr, "\n")
+
+			str += insertedStr + "\n}"
+		}
+	})
+
+	if str == "" {
+		return def
+	}
+
+	return str
+}
+
 func (p *Perem) ariphmetic() string {
+	p.checkIsClosure()
+
+	var ariphmeticStr string
+
 	countOps := rand.IntN(8)
 	if countOps == 0 {
 		countOps = 1
@@ -51,46 +163,45 @@ func (p *Perem) ariphmetic() string {
 
 	attrs := make([]string, countOps)
 	for i := 0; i < len(attrs); i++ {
-
-		if helpers.YesOrNo() {
-
-			newValue, _ := randomValue()
-			if newValue[0] == '-' {
-				newValue = "(" + newValue + ")"
-			}
-
-			attrs[i] = newValue
-		} else {
-			attrs[i] = p.Title
-		}
+		attrs[i] = p.genRandomAttr()
 	}
 
-	ariphmeticStr := p.Title + " = " + helpers.GenRandomAriphmeticStr(attrs)
-	if helpers.YesOrNo() {
-		ariphmeticStr += fmt.Sprintf("\nprint(\"Ariphmetic operation is equal - \\(%v)\")\n", p.Title)
+	ariphStr := helpers.GenRandomAriphmeticStr(attrs)
+	if strings.Trim(ariphStr, " ") == p.Title {
+		return p.ariphmetic()
+	}
+
+	str := p.assertion(ariphStr)
+
+	if !p.isClosure {
+		ariphmeticStr = p.checkNil(str)
 	}
 
 	return ariphmeticStr
 }
 
 func (p *Perem) assignment() string {
+	p.checkIsClosure()
+
+	var action string
 
 	randValue, _ := randomValue()
 
-	action := fmt.Sprintf("%s = %s", p.Title, randValue)
+	str := p.assertion(randValue)
 
-	if helpers.YesOrNo() {
-		action += ";"
+	if !p.isClosure {
+		action = p.checkNil(str)
 	}
 
 	return action
 }
 
 func (p *Perem) condition() string {
+	p.checkIsClosure()
+
 	attrs := make([]string, 10)
-	attrs[0] = p.Title
-	for i := 1; i < len(attrs); i++ {
-		attrs[i], _ = randomValue()
+	for i := 0; i < len(attrs); i++ {
+		attrs[i] = p.genRandomAttr()
 	}
 
 	if helpers.YesOrNo() {
@@ -104,7 +215,7 @@ func (p *Perem) condition() string {
 		return fmt.Sprintf(pattern, conditions...)
 	}
 
-	pattern, countValues := helpers.PatternForSwitchConditions(p.Title, 5)
+	pattern, countValues := helpers.PatternForSwitchConditions(p.Title, 3)
 	values := make([]any, countValues)
 	for i := 0; i < countValues; i++ {
 		values[i], _ = randomValue()
@@ -116,6 +227,8 @@ func (p *Perem) condition() string {
 }
 
 func (p *Perem) bitwise() string {
+	p.checkIsClosure()
+
 	countOps := rand.IntN(4)
 	if countOps == 0 {
 		countOps = 1
@@ -123,39 +236,48 @@ func (p *Perem) bitwise() string {
 
 	attrs := make([]string, countOps)
 	for i := 0; i < len(attrs); i++ {
-
-		if helpers.YesOrNo() {
-
-			newValue, _ := randomValue()
-			if newValue[0] == '-' {
-				newValue = "(" + newValue + ")"
-			}
-
-			attrs[i] = newValue
-		} else {
-			attrs[i] = p.Title
-		}
+		attrs[i] = p.genRandomAttr()
 	}
 
-	bitwiseStr := p.Title + " = " + helpers.GenRandomBitwiseStr(attrs)
-	if helpers.YesOrNo() {
-		bitwiseStr += fmt.Sprintf("\nprint(\"Bitwise operation is equal - \\(%v)\")\n", p.Title)
+	var bitwiseStr string
+	btwStr := helpers.GenRandomBitwiseStr(attrs)
+	if strings.Trim(btwStr, " ") == p.Title {
+		return p.bitwise()
+	}
+
+	str := p.assertion(btwStr)
+
+	if !p.isClosure {
+		bitwiseStr = p.checkNil(str)
 	}
 
 	return bitwiseStr
 }
 
 func (p *Perem) cycle() string {
+	p.checkIsClosure()
+
 	typeCycle := rand.IntN(2)
 
 	returnedStr := ""
 
 	firstV, firstN := randomValue()
 	secondV, secondN := randomValue()
+	if firstN < 0 {
+		firstV = "(" + firstV + ")"
+	}
+	if secondN < 0 {
+		secondV = "(" + secondV + ")"
+	}
+
 	if secondN < firstN {
 		temp := secondV
 		secondV = firstV
 		firstV = temp
+	}
+
+	if p.isClosure {
+		typeCycle = 0
 	}
 
 	switch typeCycle {
@@ -168,17 +290,19 @@ func (p *Perem) cycle() string {
 		)
 	case 1:
 		returnedStr = fmt.Sprintf("while %v %v %v {\n\tINSERT\n}",
-			p.Title,
+			p.genRandomAttr(),
 			helpers.SelectConditionSign(),
 			secondV,
 		)
 	case 2:
 		returnedStr = fmt.Sprintf("repeat {\n\tINSERT\n} while %v %v %v",
-			p.Title,
+			p.genRandomAttr(),
 			helpers.SelectConditionSign(),
 			secondV,
 		)
 	}
+
+	returnedStr = p.checkNil(returnedStr)
 
 	return returnedStr
 }

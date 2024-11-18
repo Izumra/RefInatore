@@ -25,10 +25,11 @@ const (
 )
 
 type SimplePerem struct {
-  Title string
-	Value string
-	Type  string
-  Actions []helpers.Action
+	Title   string
+	Value   string
+	Type    string
+	Actions []helpers.Action
+	Helpers []helpers.Helper
 }
 
 //Generates new simple perem with one of presented types.
@@ -51,119 +52,118 @@ type SimplePerem struct {
  */
 func New(t int) *SimplePerem {
 	choosenType := mathrand.IntN(14)
-	perem := &SimplePerem{
-    Actions: make([]helpers.Action,10),
-  }
+	perem := &SimplePerem{}
 
 	switch choosenType {
 	default:
 
-    int8P:=Int8.New()
-    perem.Type=int8P.TypeP
-    perem.Title=int8P.Title
-    perem.Value=int8P.Value
-    perem.Actions=int8P.Actions
+		int8P := Int8.New()
+		perem.Type = int8P.Type
+		perem.Title = int8P.Title
+		perem.Value = int8P.Value
+		perem.Actions = int8P.Actions
+		perem.Helpers = int8P.Helpers
 
-	//case UInt8T:
-	//	randValue := mathrand.IntN(254)
-	//	perem.Value = fmt.Sprintf("%d", randValue)
+		// case UInt8T:
+		//	randValue := mathrand.IntN(254)
+		//	perem.Value = fmt.Sprintf("%d", randValue)
 
-	//case Int16T:
-	//	randValue := gofakeit.Int16()
+		// case Int16T:
+		//	randValue := gofakeit.Int16()
 
-	//	typeSign := mathrand.IntN(2)
-	//	if typeSign == 0 && randValue != 0 {
-	//		randValue = 0 - randValue
-	//	}
+		//	typeSign := mathrand.IntN(2)
+		//	if typeSign == 0 && randValue != 0 {
+		//		randValue = 0 - randValue
+		//	}
 
-	//	perem.Value = fmt.Sprintf("%d", randValue)
+		//	perem.Value = fmt.Sprintf("%d", randValue)
 
-	//case UInt16T:
-	//	randValue := mathrand.IntN(65534)
+		// case UInt16T:
+		//	randValue := mathrand.IntN(65534)
 
-	//	perem.Value = fmt.Sprintf("%d", randValue)
+		//	perem.Value = fmt.Sprintf("%d", randValue)
 
-	//case Int32T:
-	//	randValue := gofakeit.Int32()
+		// case Int32T:
+		//	randValue := gofakeit.Int32()
 
-	//	typeSign := mathrand.IntN(2)
-	//	if typeSign == 0 && randValue != 0 {
-	//		randValue = 0 - randValue
-	//	}
+		//	typeSign := mathrand.IntN(2)
+		//	if typeSign == 0 && randValue != 0 {
+		//		randValue = 0 - randValue
+		//	}
 
-	//	perem.Value = fmt.Sprintf("%d", randValue)
+		//	perem.Value = fmt.Sprintf("%d", randValue)
 
-	//case UInt32T:
-	//	randValue := mathrand.Uint32()
+		// case UInt32T:
+		//	randValue := mathrand.Uint32()
 
-	//	perem.Value = fmt.Sprintf("%d", randValue)
-	//case Int64T:
-	//	randValue := mathrand.Int64()
+		//	perem.Value = fmt.Sprintf("%d", randValue)
+		// case Int64T:
+		//	randValue := mathrand.Int64()
 
-	//	typeSign := mathrand.IntN(2)
-	//	if typeSign == 0 && randValue != 0 {
-	//		randValue = 0 - randValue
-	//	}
+		//	typeSign := mathrand.IntN(2)
+		//	if typeSign == 0 && randValue != 0 {
+		//		randValue = 0 - randValue
+		//	}
 
-	//	perem.Value = fmt.Sprintf("%d", randValue)
+		//	perem.Value = fmt.Sprintf("%d", randValue)
 
-	//case UInt64T:
-	//	randValue := mathrand.Uint64()
+		// case UInt64T:
+		//	randValue := mathrand.Uint64()
 
-	//	perem.Value = fmt.Sprintf("%d", randValue)
+		//	perem.Value = fmt.Sprintf("%d", randValue)
 
-	//case IntT:
-	//	randValue := mathrand.Int()
+		// case IntT:
+		//	randValue := mathrand.Int()
 
-	//	typeSign := mathrand.IntN(2)
-	//	if typeSign == 0 && randValue != 0 {
-	//		randValue = 0 - randValue
-	//	}
+		//	typeSign := mathrand.IntN(2)
+		//	if typeSign == 0 && randValue != 0 {
+		//		randValue = 0 - randValue
+		//	}
 
-	//	perem.Value = fmt.Sprintf("%d", randValue)
+		//	perem.Value = fmt.Sprintf("%d", randValue)
 
-	//case UIntT:
-	//	randValue := mathrand.Uint64()
+		// case UIntT:
+		//	randValue := mathrand.Uint64()
 
-	//	perem.Value = fmt.Sprintf("%d", randValue)
+		//	perem.Value = fmt.Sprintf("%d", randValue)
 
-	//case FloatT:
-	//	randValue := gofakeit.Float32()
+		// case FloatT:
+		//	randValue := gofakeit.Float32()
 
-	//	typeSign := mathrand.IntN(2)
-	//	if typeSign == 0 && randValue != 0 {
-	//		randValue = 0 - randValue
-	//	}
+		//	typeSign := mathrand.IntN(2)
+		//	if typeSign == 0 && randValue != 0 {
+		//		randValue = 0 - randValue
+		//	}
 
-	//	perem.Value = fmt.Sprintf("%4.f", randValue)
-	//case DoubleT:
-	//	randValue := gofakeit.Float64()
+		//	perem.Value = fmt.Sprintf("%4.f", randValue)
+		// case DoubleT:
+		//	randValue := gofakeit.Float64()
 
-	//	typeSign := mathrand.IntN(2)
-	//	if typeSign == 0 && randValue != 0 {
-	//		randValue = 0 - randValue
-	//	}
+		//	typeSign := mathrand.IntN(2)
+		//	if typeSign == 0 && randValue != 0 {
+		//		randValue = 0 - randValue
+		//	}
 
-	//	perem.Value = fmt.Sprintf("%4.f", randValue)
-	//case BoolT:
-	//	randValue := false
+		//	perem.Value = fmt.Sprintf("%4.f", randValue)
+		// case BoolT:
+		//	randValue := false
 
-	//	typeBool := mathrand.IntN(2)
-	//	if typeBool == 0 {
-	//		randValue = true
-	//	}
+		//	typeBool := mathrand.IntN(2)
+		//	if typeBool == 0 {
+		//		randValue = true
+		//	}
 
-	//	perem.Value = fmt.Sprintf("%v", randValue)
+		//	perem.Value = fmt.Sprintf("%v", randValue)
 
-	//case StringT:
-		//randValue := ""
+		// case StringT:
+		// randValue := ""
 
 		//typeString := mathrand.IntN(5)
 		//switch typeString {
 		//case 0:
 		//	randValue = strings.ReplaceAll(fmt.Sprintf(
 		//		"%s%s%s",
-    //    helpers.CapitalizeFirstLetter(gofakeit.VerbAction()),
+		//    helpers.CapitalizeFirstLetter(gofakeit.VerbAction()),
 		//		gofakeit.City(),
 		//		helpers.CapitalizeFirstLetter(gofakeit.Animal()),
 		//	), " ", "")
@@ -186,7 +186,7 @@ func New(t int) *SimplePerem {
 		//		"%s%s%s",
 		//		gofakeit.Word(),
 		//		gofakeit.BeerAlcohol(),
-    //    helpers.CapitalizeFirstLetter(gofakeit.Cat()),
+		//    helpers.CapitalizeFirstLetter(gofakeit.Cat()),
 		//	), " ", "")
 		//case 4:
 		//	randValue = strings.ReplaceAll(fmt.Sprintf(
@@ -196,10 +196,8 @@ func New(t int) *SimplePerem {
 		//		helpers.CapitalizeFirstLetter(gofakeit.CelebrityActor()),
 		//	), " ", "")
 		//}
-
 	}
 
-	//log.Printf("Сгенерированная переменная значение: %v, тип: %v", perem.Value, perem.Type)
+	// log.Printf("Сгенерированная переменная значение: %v, тип: %v", perem.Value, perem.Type)
 	return perem
 }
-
