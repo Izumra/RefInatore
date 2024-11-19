@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/rand"
 	"regexp"
+	"strings"
 	"unicode"
 
 	"github.com/brianvoe/gofakeit/v7"
@@ -60,6 +61,67 @@ func CountTabsInString(str string, indEnd int) int {
 	}
 
 	return countTabs
+}
+
+func CheckIfItEmptyCaseOfSwith(str string, indStart, indEnd int) bool {
+	baseStr := []rune(str)
+	downIsEmpty := false
+
+	placeForSearchAfter := []rune(str[indEnd+1:])
+	for i := 0; i < len(placeForSearchAfter); i++ {
+		if placeForSearchAfter[i] == '\n' {
+			afterString := string(strings.Trim(string(placeForSearchAfter[:i]), "\t"))
+			if strings.Contains(afterString, "case ") ||
+				strings.HasSuffix(afterString, "default:") ||
+				afterString == "}" {
+				downIsEmpty = true
+				break
+			}
+		}
+	}
+
+	countN := 0
+	for j := indStart - 1; j > 0; j-- {
+		if baseStr[j] == '\n' {
+			countN++
+			if countN == 1 {
+				continue
+			}
+			zalupa := make([]rune, indStart-j)
+			copy(zalupa, baseStr[j:indStart])
+			prevString := string(strings.Trim(string(zalupa), "\t"))
+			if (strings.Contains(prevString, "switch ") ||
+				strings.Contains(prevString, "default:") ||
+				strings.Contains(prevString, "case ")) && downIsEmpty {
+
+				return true
+			}
+			break
+		}
+	}
+	return false
+}
+
+func PatternForSwitchConditions(
+	mainCondition string,
+	maxConditions int,
+) (string, int) {
+	var pattern string
+	countConditions := rand.Intn(maxConditions)
+
+	if countConditions == 0 {
+		countConditions = 1
+	}
+
+	pattern = fmt.Sprintf("switch %v {\n", mainCondition)
+	for i := 0; i < countConditions-1; i++ {
+		pattern += "case %v:\n\tINSERT\n"
+	}
+
+	countConditions--
+	pattern += "default:\n\tINSERT\n}"
+
+	return pattern, countConditions
 }
 
 func PatternForIfElseConditions(maxConditions int) (string, int) {
@@ -136,28 +198,6 @@ func MakeCondition(attrs []string) string {
 	)
 
 	return condition
-}
-
-func PatternForSwitchConditions(
-	mainCondition string,
-	maxConditions int,
-) (string, int) {
-	var pattern string
-	countConditions := rand.Intn(maxConditions)
-
-	if countConditions == 0 {
-		countConditions = 1
-	}
-
-	pattern = fmt.Sprintf("switch %v {\n", mainCondition)
-	for i := 0; i < countConditions-1; i++ {
-		pattern += "case %v:\n\tINSERT\n"
-	}
-
-	countConditions--
-	pattern += "default:\n\tINSERT\n}"
-
-	return pattern, countConditions
 }
 
 func GenRandomAriphmeticStr(
