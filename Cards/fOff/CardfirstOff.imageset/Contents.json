@@ -1,0 +1,23 @@
+{
+  "images": [
+    {
+      "filename": "Group 18_hereYetiImperialStoutVulture.png",
+      "idiom": "universal",
+      "scale": "1x"
+    },
+    {
+      "filename": "Group 18_hereYetiImperialStoutVulture@2x.png",
+      "idiom": "universal",
+      "scale": "2x"
+    },
+    {
+      "filename": "Group 18_hereYetiImperialStoutVulture@3x.png",
+      "idiom": "universal",
+      "scale": "3x"
+    }
+  ],
+  "info": {
+    "author": "xcode",
+    "version": 1
+  }
+}

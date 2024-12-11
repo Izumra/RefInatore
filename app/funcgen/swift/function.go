@@ -74,13 +74,12 @@ func (f *Function) GenerateFilling(countOperations int) string {
 
 	results := f.insertPattern.FindAllStringSubmatchIndex(f.value, -1)
 	necesserySpots := f.findNecesserryInsertPosses(results)
-	for i := 0; i < len(necesserySpots); i++ {
+	for len(necesserySpots) != 0 {
 		f.counterInsertions.Add(1)
-
-		go f.MakeOperation()
+		f.MakeOperation()
+		results = f.insertPattern.FindAllStringSubmatchIndex(f.value, -1)
+		necesserySpots = f.findNecesserryInsertPosses(results)
 	}
-
-	f.counterInsertions.Wait()
 
 	f.value = strings.ReplaceAll(f.value, "INSERT", "")
 

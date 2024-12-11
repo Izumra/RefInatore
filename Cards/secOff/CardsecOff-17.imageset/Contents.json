@@ -1,0 +1,23 @@
+{
+  "images": [
+    {
+      "filename": "Group 67_kissWhere.png",
+      "idiom": "universal",
+      "scale": "1x"
+    },
+    {
+      "filename": "Group 67_kissWhere@2x.png",
+      "idiom": "universal",
+      "scale": "2x"
+    },
+    {
+      "filename": "Group 67_kissWhere@3x.png",
+      "idiom": "universal",
+      "scale": "3x"
+    }
+  ],
+  "info": {
+    "author": "xcode",
+    "version": 1
+  }
+}

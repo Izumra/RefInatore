@@ -1,0 +1,23 @@
+{
+  "images": [
+    {
+      "filename": "Group 41_writeSomebody.png",
+      "idiom": "universal",
+      "scale": "1x"
+    },
+    {
+      "filename": "Group 41_writeSomebody@2x.png",
+      "idiom": "universal",
+      "scale": "2x"
+    },
+    {
+      "filename": "Group 41_writeSomebody@3x.png",
+      "idiom": "universal",
+      "scale": "3x"
+    }
+  ],
+  "info": {
+    "author": "xcode",
+    "version": 1
+  }
+}
